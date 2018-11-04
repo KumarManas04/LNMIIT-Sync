@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="login"
-                android:text="Faculty login"/>
+                android:text="Admin login"/>
 
         </LinearLayout>
 

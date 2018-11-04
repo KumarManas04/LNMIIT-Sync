@@ -12,6 +12,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -41,7 +42,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        getSupportActionBar().hide();
+
+        getWindow().setNavigationBarColor(Color.BLACK);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -102,8 +104,6 @@ public class LoginActivity extends AppCompatActivity {
         dialog.show();
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-        Log.d(TAG, "GoogleId = " + googleId);
         //The Retrofit builder will have the client attached, in order to get connection logs
         Retrofit retrofit = new Retrofit.Builder()
                 .client(httpClient.build())

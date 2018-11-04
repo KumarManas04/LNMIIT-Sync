@@ -27,5 +27,5 @@ public interface RetroFitInterface {
     Call<Result> getUserDetails(@Path("googleId") String googleId);
 
     @GET("get_clubs/")
-    Call<List<String>>getClubsList();
+    Call<List<ClubResponse>>getClubsList();
 }
