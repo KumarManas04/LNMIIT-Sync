@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -31,7 +33,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -202,10 +208,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUserDetails(String profileImageUrl, String userName,String emailId){
+        final ImageView profileImageView = (ImageView)findViewById(R.id.profile_image_view);
         Glide.with(this)
                 .load(profileImageUrl)
                 .apply(new RequestOptions().placeholder(R.drawable.default_profile_photo))
-                .into((ImageView)findViewById(R.id.profile_image_view));
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        //Here we detect that image loading has occured so clipToOutline to make imageView circular
+                        profileImageView.setClipToOutline(true);
+                        return false;
+                    }
+                })
+                .into(profileImageView);
+
         TextView nameTextView = (TextView)findViewById(R.id.name_text_view);
         nameTextView.setText(userName);
         TextView rollNoTextView = (TextView)findViewById(R.id.roll_no_text_view);

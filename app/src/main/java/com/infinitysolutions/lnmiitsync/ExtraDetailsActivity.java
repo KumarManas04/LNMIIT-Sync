@@ -13,6 +13,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +39,7 @@ public class ExtraDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extra_details);
 
-        getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.navBarColor));
+        getWindow().setNavigationBarColor(Color.BLACK);
 
         mSpinner = (Spinner)findViewById(R.id.spinner);
         mClubsRecyclerView = (RecyclerView) findViewById(R.id.clubs_recycler_view);
