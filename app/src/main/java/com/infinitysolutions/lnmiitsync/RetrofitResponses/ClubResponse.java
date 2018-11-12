@@ -1,4 +1,4 @@
-package com.infinitysolutions.lnmiitsync;
+package com.infinitysolutions.lnmiitsync.RetrofitResponses;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

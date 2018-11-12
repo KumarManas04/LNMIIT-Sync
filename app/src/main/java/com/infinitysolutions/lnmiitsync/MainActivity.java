@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.OkHttpClient;
@@ -41,10 +43,13 @@ import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.infinitysolutions.lnmiitsync.Fragments.EventsFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,24 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().setNavigationBarColor(ContextCompat.getColor(this,R.color.navBarColor));
 
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.simpleRecyclerView);
-        List<String> list = new ArrayList<String>();
-        list.add("tomato");
-        list.add("ring");
-        list.add("toe ring");
-        list.add("doll");
-        list.add("house");
-        list.add("pen");
-        list.add("USB drive");
-        list.add("helmet");
-        list.add("toothpaste");
-        list.add("socks");
-
-        ClubsRecyclerViewAdapter adapter = new ClubsRecyclerViewAdapter(list);
-        recyclerView.setAdapter(adapter);
-        LinearLayoutManager manager = new LinearLayoutManager(this,RecyclerView.VERTICAL,false);
-        recyclerView.setLayoutManager(manager);
-
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account == null) {
             Log.d(TAG, "No login found");
@@ -107,6 +94,30 @@ public class MainActivity extends AppCompatActivity {
             }
             setUserDetails(profileImageUrl,account.getDisplayName(),account.getEmail());
         }
+
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+                CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
+                switch(menuItem.getItemId()){
+                    case R.id.bnav_all_view:
+                        collapsingToolbarLayout.setTitle("All");
+                        break;
+                    case R.id.bnav_events_view :
+                        collapsingToolbarLayout.setTitle("Events");
+                        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container,EventsFragment.newInstance());
+                        transaction.commit();
+                        break;
+                    case R.id.bnav_classes_view:
+                        collapsingToolbarLayout.setTitle("Classes");
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -165,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         mDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle("Events");
+        collapsingToolbarLayout.setTitle("All");
 
     }
 
@@ -201,10 +212,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-    }
-
-    public void setAsSelected(View view){
-        view.setSelected(true);
     }
 
     private void setUserDetails(String profileImageUrl, String userName,String emailId){

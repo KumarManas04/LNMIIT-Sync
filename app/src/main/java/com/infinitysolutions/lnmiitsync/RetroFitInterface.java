@@ -1,5 +1,9 @@
 package com.infinitysolutions.lnmiitsync;
 
+import com.infinitysolutions.lnmiitsync.RetrofitResponses.ClubResponse;
+import com.infinitysolutions.lnmiitsync.RetrofitResponses.EventResponse;
+import com.infinitysolutions.lnmiitsync.RetrofitResponses.Result;
+
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -28,4 +32,7 @@ public interface RetroFitInterface {
 
     @GET("get_clubs/")
     Call<List<ClubResponse>>getClubsList();
+
+    @GET("get_events/")
+    Call<List<EventResponse>>getEvents();
 }

@@ -1,7 +1,6 @@
 package com.infinitysolutions.lnmiitsync;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.OkHttpClient;
@@ -19,6 +18,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
+import com.infinitysolutions.lnmiitsync.Adapters.ClubsRecyclerViewAdapter;
+import com.infinitysolutions.lnmiitsync.RetrofitResponses.ClubResponse;
 
 import java.util.ArrayList;
 import java.util.List;

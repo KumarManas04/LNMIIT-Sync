@@ -1,4 +1,4 @@
-package com.infinitysolutions.lnmiitsync;
+package com.infinitysolutions.lnmiitsync.Adapters;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.infinitysolutions.lnmiitsync.R;
 
 import java.util.List;
 
