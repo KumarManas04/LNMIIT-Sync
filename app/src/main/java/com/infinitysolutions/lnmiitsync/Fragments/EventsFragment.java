@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -99,9 +100,9 @@ public class EventsFragment extends Fragment {
         mEventsRecyclerView.setVisibility(View.INVISIBLE);
 
         SharedPreferences sharedPrefs = mContext.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
-        Type listType = new TypeToken<List<EventResponse>>() {}.getType();
-        List<EventResponse> eventResponses = new Gson().fromJson(sharedPrefs.getString(SHARED_PREF_EVENTS_DATA,"{}"),listType);
 
+        String json = sharedPrefs.getString(SHARED_PREF_EVENTS_DATA,"{}");
+        List<EventResponse> eventResponses = Arrays.asList(new Gson().fromJson(json, EventResponse[].class));
         loadIntoRecyclerView(eventResponses);
     }
 
