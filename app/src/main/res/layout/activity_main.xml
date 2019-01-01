@@ -8,9 +8,9 @@
     tools:openDrawer="start">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -18,13 +18,15 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#ffffff"
+            android:background="@drawable/main_background_gradient"
             tools:context=".MainActivity">
 
             <com.google.android.material.appbar.AppBarLayout
                 android:id="@+id/appBar"
+                android:layout_margin="0dp"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
+                android:background="#6F59D7"
                 android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
                 <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -39,7 +41,6 @@
                         android:id="@+id/toolbar"
                         android:layout_width="match_parent"
                         android:layout_height="?attr/actionBarSize"
-                        android:background="@color/colorPrimary"
                         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
                         app:layout_collapseMode="pin"
                         app:layout_scrollFlags="scroll|enterAlways" />
@@ -47,25 +48,27 @@
                 </com.google.android.material.appbar.CollapsingToolbarLayout>
             </com.google.android.material.appbar.AppBarLayout>
 
-            <androidx.core.widget.NestedScrollView
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_refresh_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <FrameLayout
-                    android:id="@+id/fragment_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                        android:id="@+id/fragment_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
 
-            </androidx.core.widget.NestedScrollView>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#536dfe"
-            app:labelVisibilityMode="selected"
+            android:background="#1565c0"
+            android:elevation="5dp"
             app:itemIconTint="@drawable/bnav_selector"
             app:itemTextColor="@drawable/bnav_selector"
             app:menu="@menu/bottom_navigation_menu" />

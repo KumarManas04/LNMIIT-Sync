@@ -3,5 +3,11 @@
     <color name="colorPrimary">#ffffff</color>
     <color name="colorPrimaryDark">#ffffff</color>
     <color name="colorAccent">#ff5252</color>
-    <color name="navBarColor">#3d5afe</color>
+    <color name="navBarColor">#0d47a1</color>
+    <color name="orange">#ff7043</color>
+    <color name="cyan">#4dd0e1</color>
+    <color name="indigo">#5c6bc0</color>
+    <color name="background">#448aff</color>
+    <color name="selectedTabTextColor">#ffffff</color>
+    <color name="tabTextColor">#e0e0e0</color>
 </resources>

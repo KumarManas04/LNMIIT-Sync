@@ -41,8 +41,6 @@ public class ExtraDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extra_details);
 
-        getWindow().setNavigationBarColor(Color.BLACK);
-
         mSpinner = (Spinner)findViewById(R.id.spinner);
         mClubsRecyclerView = (RecyclerView) findViewById(R.id.clubs_recycler_view);
         loadAndShowClubs();

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#00448aff"
+    android:id="@+id/rl"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,12 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ImageView
+        android:id="@+id/recycler_empty_view"
+        android:visibility="invisible"
+        android:src="@drawable/empty_list"
+        android:layout_centerInParent="true"
+        android:layout_width="150dp"
+        android:layout_height="150dp" />
+
     <TextView
         android:id="@+id/loading_view"
-        android:layout_centerInParent="true"
+        android:layout_below="@id/recycler_empty_view"
         android:visibility="invisible"
-        android:drawableTop="@drawable/loading"
+        android:layout_centerHorizontal="true"
         android:text="Loading..."
+        android:textColor="#fff"
+        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

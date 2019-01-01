@@ -1,39 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/main_linear_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="15dp"
+    android:layout_marginTop="7dp"
+    android:layout_marginEnd="15dp"
+    android:layout_marginBottom="8dp"
     android:background="@drawable/event_round_background"
+    android:elevation="2dp"
+    android:orientation="horizontal"
     android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
-    android:layout_marginTop="2dp"
-    android:clickable="false"
-    android:duplicateParentState="true"
-    android:layout_height="match_parent">
+    android:paddingEnd="10dp">
 
     <TextView
-        android:id="@+id/event_title"
-        android:fontFamily="sans-serif"
-        android:textColor="#FFF"
-        android:layout_width="wrap_content"
+        android:id="@+id/indicator"
+        android:textColor="#ffffff"
+        android:textAlignment="center"
+        android:gravity="center"
         android:textSize="16sp"
-        android:layout_height="wrap_content" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="15dp" />
 
-    <TextView
-        android:id="@+id/event_venue"
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="#e8eaf6"
-        android:textSize="14sp"
-        android:layout_marginTop="4dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/event_linear_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="15dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/event_time"
-        android:fontFamily="sans-serif-condensed"
-        android:textColor="#FFF"
-        android:textSize="14sp"
+        <TextView
+            android:id="@+id/event_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:textColor="#000"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/event_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#455a64"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/event_venue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="#455a64"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/notify_image_view"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/notify_no" />
+
+        <TextView
+            android:id="@+id/notify_text_view"
+            android:textSize="12sp"
+            android:textColor="#607d8b"
+            android:text="Notify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
 
 </LinearLayout>

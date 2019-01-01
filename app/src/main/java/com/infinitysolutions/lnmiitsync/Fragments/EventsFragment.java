@@ -1,6 +1,7 @@
 package com.infinitysolutions.lnmiitsync.Fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -8,38 +9,44 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.infinitysolutions.lnmiitsync.Event;
 import com.infinitysolutions.lnmiitsync.RetrofitResponses.EventResponse;
 import com.infinitysolutions.lnmiitsync.Adapters.EventsRecyclerViewAdapter;
 import com.infinitysolutions.lnmiitsync.R;
-import com.infinitysolutions.lnmiitsync.RetroFitInterface;
 
+import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.BASE_URL;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_EVENTS_DATA;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_NAME;
 
 public class EventsFragment extends Fragment {
 
     private RecyclerView mEventsRecyclerView;
-    private TextView loadingView;
-    private HashMap<Long,ArrayList<Event>> mEvents;
+    private TextView mLoadingTextView;
+    private ImageView mRecyclerEmptyImageView;
     private Context mContext;
+    private List<Event> mEvents;
+    private long mStartTime;
+    private long mEndTime;
+    private int mark;
     private String TAG = "EventsFragment";
 
     public EventsFragment() {
@@ -55,13 +62,17 @@ public class EventsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_events_view, container, false);
         mEventsRecyclerView = (RecyclerView) rootView.findViewById(R.id.events_recycler_view);
-        loadingView = (TextView)rootView.findViewById(R.id.loading_view);
-        loadingView.setVisibility(View.INVISIBLE);
         mEventsRecyclerView.setVisibility(View.VISIBLE);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mContext,RecyclerView.VERTICAL,false);
-        mEventsRecyclerView.setLayoutManager(layoutManager);
+        mLoadingTextView = (TextView)rootView.findViewById(R.id.loading_view);
+        mLoadingTextView.setVisibility(View.INVISIBLE);
+        mRecyclerEmptyImageView = (ImageView)rootView.findViewById(R.id.recycler_empty_view);
+        mRecyclerEmptyImageView.setVisibility(View.INVISIBLE);
 
-        mEvents = new HashMap<Long,ArrayList<Event>>();
+
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
+        mEventsRecyclerView.setLayoutManager(mLayoutManager);
+        mEvents = new ArrayList<Event>();
+
         loadEvents();
         return rootView;
     }
@@ -72,46 +83,56 @@ public class EventsFragment extends Fragment {
         mContext = context;
     }
 
+
+    public void setParams(long startTime, long endTime){
+        mStartTime = startTime;
+        mEndTime = endTime;
+    }
+
     private void loadEvents() {
-
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(httpClient.build())
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl(BASE_URL)
-                .build();
-
-        RetroFitInterface service = retrofit.create(RetroFitInterface.class);
-
-        loadingView.setVisibility(View.VISIBLE);
+        mRecyclerEmptyImageView.setImageResource(R.drawable.loading);
+        mRecyclerEmptyImageView.getLayoutParams().width = 150;
+        mRecyclerEmptyImageView.getLayoutParams().height = 150;
+        mLoadingTextView.setText("Loading...");
+        mLoadingTextView.setVisibility(View.VISIBLE);
+        mRecyclerEmptyImageView.setVisibility(View.VISIBLE);
         mEventsRecyclerView.setVisibility(View.INVISIBLE);
-        Log.d(TAG,"Sending GET request...");
-        service.getEvents().enqueue(new Callback<List<EventResponse>>() {
-            @Override
-            public void onResponse(Call<List<EventResponse>> call, Response<List<EventResponse>> response) {
-                List<EventResponse> events = response.body();
-                Log.d(TAG,"Received response now calling loadIntoRecyclerView()");
-                loadIntoRecyclerView(events);
-            }
 
-            @Override
-            public void onFailure(Call<List<EventResponse>> call, Throwable t) {
-                Log.d(TAG,"Error in response: " + t.getCause());
-            }
-        });
+        SharedPreferences sharedPrefs = mContext.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
+        Type listType = new TypeToken<List<EventResponse>>() {}.getType();
+        List<EventResponse> eventResponses = new Gson().fromJson(sharedPrefs.getString(SHARED_PREF_EVENTS_DATA,"{}"),listType);
+
+        loadIntoRecyclerView(eventResponses);
     }
 
     private void loadIntoRecyclerView(final List<EventResponse> list) {
+
+        final long currentTime = System.currentTimeMillis() + 19800000;
+        Log.d(TAG,"Current time = " + currentTime);
+        mark = 0;
 
         final Handler handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
                 if(msg.what == 0){
-                    EventsRecyclerViewAdapter adapter = new EventsRecyclerViewAdapter(mContext,mEvents);
-                    loadingView.setVisibility(View.INVISIBLE);
-                    mEventsRecyclerView.setVisibility(View.VISIBLE);
-                    mEventsRecyclerView.setAdapter(adapter);
+                    EventsRecyclerViewAdapter adapter;
+                    if(mStartTime == 0 && mEndTime == 0) {
+                        adapter = new EventsRecyclerViewAdapter(mContext, mEvents,true);
+                    }else{
+                        adapter = new EventsRecyclerViewAdapter(mContext, mEvents,false);
+                    }
+                    if(mEvents.size() == 0){
+                        mRecyclerEmptyImageView.setImageResource(R.drawable.empty_list);
+                        mRecyclerEmptyImageView.getLayoutParams().width = 600;
+                        mRecyclerEmptyImageView.getLayoutParams().height = 600;
+                        mLoadingTextView.setText("No events");
+                    }else {
+                        mLoadingTextView.setVisibility(View.INVISIBLE);
+                        mRecyclerEmptyImageView.setVisibility(View.INVISIBLE);
+                        mEventsRecyclerView.setVisibility(View.VISIBLE);
+                        mEventsRecyclerView.setAdapter(adapter);
+                        mEventsRecyclerView.scrollToPosition(mark);
+                    }
                 }
                 return true;
             }
@@ -121,20 +142,62 @@ public class EventsFragment extends Fragment {
             @Override
             public void run() {
                 long endTime;
-                for(EventResponse event : list){
-                    if(event.getDuration() == 0) {
-                        endTime = 0;
-                    }else{
-                        endTime = event.getDate() + (event.getDuration() * 60 * 60 * 1000);
+                String title = "";
+                int i = 0;
+                if(mStartTime != 0 && mEndTime != 0) {
+                    for(EventResponse event : list){
+                            if (event.getDate() < mStartTime) {
+                                continue;
+                            }
+                            if (event.getDate() > mEndTime) {
+                                break;
+                            }
+
+                            if(mark == 0){
+                                if(event.getDate() > currentTime){
+                                    mark = i;
+                                }
+                            }
+
+                        if(event.getDuration() == 0) {
+                            endTime = 0;
+                        }else{
+                            endTime = event.getDate() + (event.getDuration() * 60 * 60 * 1000);
+                        }
+                        if(event.getName() != null) {
+                            if(event.getName().length() > 1) {
+                                title = event.getName().substring(0, 1).toUpperCase() + event.getName().substring(1);
+                            }
+                        }
+                        mEvents.add(new Event(event.getId(),title,event.getDescription(),event.getVenue(),event.getDate(),endTime));
+                        title = "";
+                        i++;
                     }
-                    if(mEvents.containsKey(event.getDate())){
-                        mEvents.get(event.getDate()).add(new Event(event.getName(),event.getDescription(),event.getVenue(),endTime));
-                    }else{
-                        ArrayList<Event> eventItem = new ArrayList<Event>();
-                        eventItem.add(new Event(event.getName(),event.getDescription(),event.getVenue(),endTime));
-                        mEvents.put(event.getDate(),eventItem);
+                }else {
+                    for (EventResponse event : list) {
+
+                        if(mark == 0){
+                            if(event.getDate() > currentTime){
+                                mark = i;
+                            }
+                        }
+
+                        if (event.getDuration() == 0) {
+                            endTime = 0;
+                        } else {
+                            endTime = event.getDate() + (event.getDuration() * 60 * 60 * 1000);
+                        }
+                        if (event.getName() != null) {
+                            if (event.getName().length() > 1) {
+                                title = event.getName().substring(0, 1).toUpperCase() + event.getName().substring(1);
+                            }
+                        }
+                        mEvents.add(new Event(event.getId(),title, event.getDescription(), event.getVenue(), event.getDate(), endTime));
+                        title = "";
+                        i++;
                     }
                 }
+                Log.d(TAG,"i = " + i + ", Mark = " + mark);
                 handler.sendEmptyMessage(0);
             }
         };

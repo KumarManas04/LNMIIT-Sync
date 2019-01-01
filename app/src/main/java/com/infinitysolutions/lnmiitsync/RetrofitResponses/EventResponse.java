@@ -6,6 +6,10 @@ import java.util.List;
 
 public class EventResponse {
 
+    @SerializedName("_id")
+    @Expose
+    private String id;
+
     @SerializedName("date")
     @Expose
     private long date;
@@ -33,6 +37,14 @@ public class EventResponse {
     @SerializedName("description")
     @Expose
     private String description;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public long getDate() {
         return date;

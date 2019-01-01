@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
@@ -12,10 +13,12 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -29,6 +32,10 @@ import com.infinitysolutions.lnmiitsync.RetrofitResponses.Result;
 import java.util.List;
 
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.BASE_URL;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.GUEST_LOGIN;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_LOGIN_TYPE;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_NAME;
+import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.STUDENT_LOGIN;
 
 @SuppressLint("LogNotTimber")
 public class LoginActivity extends AppCompatActivity {
@@ -38,13 +45,12 @@ public class LoginActivity extends AppCompatActivity {
     private int EXTRA_DETAILS_REQUEST_CODE = 102;
     private String TAG = "LoginActivity";
     private GoogleSignInAccount mAccount;
+    private boolean isGuest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        getWindow().setNavigationBarColor(Color.BLACK);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -53,7 +59,26 @@ public class LoginActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mGoogleSignInClient.signOut();
+    }
+
     public void login(View view) {
+        SharedPreferences sharedPrefs = this.getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPrefs.edit();
+
+        if (view.getId() == R.id.student_login_button) {
+            editor.putInt(SHARED_PREF_LOGIN_TYPE, STUDENT_LOGIN);
+            isGuest = false;
+        } else {
+            editor.putInt(SHARED_PREF_LOGIN_TYPE, GUEST_LOGIN);
+            isGuest = true;
+        }
+        editor.commit();
+
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -63,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == RC_SIGN_IN) {
+            Log.d(TAG,"RC_SIGN_IN triggered");
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
             handleSignInResult(task);
         } else if (requestCode == EXTRA_DETAILS_REQUEST_CODE) {
@@ -84,14 +110,36 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        mGoogleSignInClient.signOut();
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
+        homeIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(homeIntent);
+    }
+
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             mAccount = completedTask.getResult(ApiException.class);
-            Log.d(TAG, "GoogleId = " + mAccount.getId());
-            checkIfUserExists(mAccount.getId());
+
+            if (!isGuest) {
+                if (mAccount.getEmail() != null) {
+                    String emailIdParts[] = mAccount.getEmail().split("@");
+                    if (!emailIdParts[1].equals("lnmiit.ac.in")) {
+                        mGoogleSignInClient.signOut();
+                        Toast.makeText(LoginActivity.this, "LNMIIT account required. Please Login again.", Toast.LENGTH_LONG).show();
+                    } else {
+                        checkIfUserExists(mAccount.getId());
+                    }
+                }
+            } else {
+                checkIfUserExists(mAccount.getId());
+            }
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            mGoogleSignInClient.signOut();
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
     }
@@ -116,45 +164,68 @@ public class LoginActivity extends AppCompatActivity {
 
         service.getUserDetails(googleId).enqueue(new Callback<Result>() {
             @Override
-            public void onResponse(Call<Result> call, Response<Result> response) {
+            public void onResponse(@NonNull Call<Result> call, @NonNull Response<Result> response) {
                 if (response.isSuccessful()) {
                     String jsonResponse = new Gson().toJson(response.body());
                     if (jsonResponse.equals("{}")) {
                         dialog.cancel();
-                        Intent intent = new Intent(LoginActivity.this, ExtraDetailsActivity.class);
-                        startActivityForResult(intent, EXTRA_DETAILS_REQUEST_CODE);
-                    } else {
-                        List<String> clubs = null;
-                        try {
-                            clubs = response.body().getClubs();
-                        }catch (NullPointerException e){
-                            e.printStackTrace();
-                        }
-                        String clubsArray[] = new String[clubs.size()];
-                        for (int i = 0; i < clubs.size(); i++) {
-                            clubsArray[i] = clubs.get(i);
+                        if (!isGuest) {
+                            Intent intent = new Intent(LoginActivity.this, ExtraDetailsActivity.class);
+                            startActivityForResult(intent, EXTRA_DETAILS_REQUEST_CODE);
+                        } else {
+                            Intent intent = new Intent();
+                            intent.putExtra("gId", mAccount.getId());
+                            intent.putExtra("userName", mAccount.getDisplayName());
+                            intent.putExtra("emailId", mAccount.getEmail());
+                            try {
+                                intent.putExtra("thumbnailUrl", mAccount.getPhotoUrl().toString());
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                                intent.putExtra("thumbnailUrl", "NullPhoto");
+                            }
+                            setResult(105, intent);
+                            finish();
                         }
 
+                    } else {
                         Intent intent = new Intent();
+
+                        if (!isGuest) {
+                            List<String> clubs = null;
+                            try {
+                                clubs = response.body().getClubs();
+                            } catch (NullPointerException e) {
+                                e.printStackTrace();
+                            }
+                            String clubsArray[] = new String[clubs.size()];
+                            for (int i = 0; i < clubs.size(); i++) {
+                                clubsArray[i] = clubs.get(i);
+                            }
+
+                            intent.putExtra("clubs", clubsArray);
+                            intent.putExtra("batch", response.body().getBatch());
+                        }
+
                         intent.putExtra("gId", response.body().getGoogleId());
                         intent.putExtra("userName", response.body().getUsername());
                         intent.putExtra("emailId", response.body().getEmail());
                         intent.putExtra("thumbnailUrl", response.body().getThumbnail());
-                        intent.putExtra("batch", response.body().getBatch());
-                        intent.putExtra("clubs", clubsArray);
-                        intent.putExtra("isRegistered",1);
+                        intent.putExtra("isRegistered", 1);
                         setResult(105, intent);
                         dialog.cancel();
                         finish();
                     }
-                }else{
+                } else {
                     dialog.cancel();
                 }
             }
 
             @Override
-            public void onFailure(Call<Result> call, Throwable t) {
-
+            public void onFailure(@NonNull Call<Result> call, @NonNull Throwable t) {
+                Log.d(TAG,t.getMessage());
+                dialog.cancel();
+                mGoogleSignInClient.signOut();
+                Toast.makeText(LoginActivity.this, "Couldn't contact server", Toast.LENGTH_SHORT).show();
             }
         });
     }

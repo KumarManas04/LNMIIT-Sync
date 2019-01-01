@@ -5,19 +5,19 @@
         android:checkableBehavior="single">
 
         <item
+            android:id="@+id/bnav_today_view"
+            android:icon="@drawable/classes"
+            android:title="Today"/>
+
+        <item
+            android:id="@+id/bnav_week_view"
+            android:icon="@drawable/week"
+            android:title="This week"/>
+
+        <item
             android:id="@+id/bnav_all_view"
             android:icon="@drawable/all"
             android:title="All"/>
-
-        <item
-            android:id="@+id/bnav_events_view"
-            android:icon="@drawable/events"
-            android:title="Events"/>
-
-        <item
-            android:id="@+id/bnav_classes_view"
-            android:icon="@drawable/classes"
-            android:title="Classes"/>
 
     </group>
 
