@@ -38,23 +38,36 @@ public class EventDetailsActivity extends AppCompatActivity {
         sdf1.setTimeZone(TimeZone.getTimeZone("GMT"));
 
 
-        String endTimeString = sdf.format(new Date(endTime));
+
         String startTimeString = sdf.format(new Date(startTime));
+        String endTimeString = sdf.format(new Date(endTime));
         String date = sdf1.format(new Date(startTime));
 
 
-        if(title.equals("")){
-            titleView.setText("(No event name)");
-        }else {
-            titleView.setText(title);
+        if(title != null) {
+            if (title.equals("")) {
+                titleView.setText("(No event name)");
+            } else {
+                titleView.setText(title);
+            }
         }
+
         dateTextView.setText(date);
-        timeView.setText(startTimeString + " - " + endTimeString);
+        if(endTime == 0) {
+            timeView.setText(startTimeString);
+        }else{
+            timeView.setText(startTimeString + " - " + endTimeString);
+        }
         venueView.setText(venue);
-        if(description.equals("")){
+
+        if(description != null) {
+            if (description.equals("")) {
+                descriptionView.setText("(No description available)");
+            } else {
+                descriptionView.setText(description);
+            }
+        }else{
             descriptionView.setText("(No description available)");
-        }else {
-            descriptionView.setText(description);
         }
     }
 
