@@ -95,6 +95,7 @@ public class EventsFragment extends Fragment {
     public void setParams(long startTime, long endTime){
         mStartTime = startTime;
         mEndTime = endTime;
+        Log.d(TAG,"StartTime = " + startTime + " ,EndTime = " + endTime);
     }
 
     private void loadEvents() {

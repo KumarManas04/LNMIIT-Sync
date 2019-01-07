@@ -3,6 +3,7 @@ package com.infinitysolutions.lnmiitsync.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import androidx.viewpager.widget.ViewPager;
 
 public class WeekViewFragment extends Fragment {
     private Context mContext;
+    private String TAG = "WeekViewFragment";
 
     public WeekViewFragment() {
         // Required empty public constructor
@@ -44,8 +46,8 @@ public class WeekViewFragment extends Fragment {
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String formattedDate = sdf.format(calendar.getTime());
+        Log.d(TAG,formattedDate);
         Date date = new Date();
         try {
             date = sdf.parse(formattedDate);
@@ -53,7 +55,7 @@ public class WeekViewFragment extends Fragment {
             e.printStackTrace();
         }
 
-        long time = date.getTime();
+        long time = date.getTime() + 19800000;
         long thisMondayTime = 0;
         int tabSelect = 0;
         int day = calendar.get(Calendar.DAY_OF_WEEK);

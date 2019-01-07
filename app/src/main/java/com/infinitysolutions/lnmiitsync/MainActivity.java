@@ -297,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTodayFragment() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String formattedDate = sdf.format(Calendar.getInstance().getTime());
         Date date = new Date();
         try {
@@ -306,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        long startTime = date.getTime();
+        long startTime = date.getTime() + 19800000;
         long endTime = startTime + (86400000);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
