@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#1565c0"
-            android:elevation="5dp"
+            app:elevation="8dp"
             app:itemIconTint="@drawable/bnav_selector"
             app:itemTextColor="@drawable/bnav_selector"
             app:menu="@menu/bottom_navigation_menu" />

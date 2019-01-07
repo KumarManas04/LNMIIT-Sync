@@ -63,6 +63,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.BASE_URL;
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_BATCH;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setToolbar();
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.cyan, R.color.indigo);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, LOGIN_REQUEST_CODE);
         } else {
-            ImageView profileImageView = (ImageView) findViewById(R.id.profile_image_view);
+            ImageView profileImageView = findViewById(R.id.profile_image_view);
             profileImageView.setClipToOutline(true);
 
             String profileImageUrl = sharedPrefs.getString(SHARED_PREF_THUMBNAIL_URL, "NullPhoto");
@@ -125,12 +126,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-                CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+                CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
 
                 switch (menuItem.getItemId()) {
                     case R.id.bnav_today_view:
@@ -192,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putString(SHARED_PREF_EMAIL_ID, emailId);
             editor.putString(SHARED_PREF_GID, gId);
             editor.putString(SHARED_PREF_THUMBNAIL_URL, thumbnailUrl);
+            editor.putInt(SHARED_PREF_NOTIFY_BEFORE,10);
 
             if (loginType == STUDENT_LOGIN) {
                 String clubs[] = intent.getStringArrayExtra("clubs");
@@ -252,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString(SHARED_PREF_EVENTS_DATA, jsonResponse);
                 editor.apply();
                 mSwipeRefreshLayout.setRefreshing(false);
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+                BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
                 switch (bottomNavigationView.getSelectedItemId()) {
                     case R.id.bnav_today_view:
                         loadTodayFragment();
@@ -273,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<List<EventResponse>> call, Throwable t) {
                 Log.d(TAG, "Error in response: " + t.getCause());
                 mSwipeRefreshLayout.setRefreshing(false);
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+                BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
                 switch (bottomNavigationView.getSelectedItemId()) {
                     case R.id.bnav_today_view:
                         loadTodayFragment();
@@ -295,16 +297,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTodayFragment() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String formattedDate = sdf.format(Calendar.getInstance().getTime());
         Date date = new Date();
         try {
-            date = (Date) sdf.parse(formattedDate);
+            date = sdf.parse(formattedDate);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         long startTime = date.getTime();
-        long endTime = startTime + (86400 * 1000);
+        long endTime = startTime + (86400000);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         EventsFragment eventsFragment = EventsFragment.newInstance();
@@ -329,14 +332,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setToolbar() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.app_name, R.string.app_name);
         drawerLayout.addDrawerListener(mDrawerToggle);
         mDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
         collapsingToolbarLayout.setTitle("Today");
         collapsingToolbarLayout.setCollapsedTitleTextColor(Color.parseColor("#ffffff"));
         collapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#ffffff"));
@@ -409,6 +412,7 @@ public class MainActivity extends AppCompatActivity {
                         editor.putString(SHARED_PREF_THUMBNAIL_URL, "NullPhoto");
                         editor.putString(SHARED_PREF_BATCH, "");
                         editor.putStringSet(SHARED_PREF_CLUBS, null);
+                        editor.putInt(SHARED_PREF_NOTIFY_BEFORE,10);
                         editor.apply();
                         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                                 .requestEmail()
@@ -416,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
 
                         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(MainActivity.this, gso);
                         googleSignInClient.signOut();
-                        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+                        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
                         drawerLayout.closeDrawers();
                         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                         startActivityForResult(intent, LOGIN_REQUEST_CODE);
@@ -428,8 +432,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUserDetails(String profileImageUrl, String userName, String emailId) {
-        final ImageView profileImageView = (ImageView) findViewById(R.id.profile_image_view);
-        TextView altProfileImageView = (TextView) findViewById(R.id.alt_profile_photo_view);
+        final ImageView profileImageView = findViewById(R.id.profile_image_view);
+        TextView altProfileImageView = findViewById(R.id.alt_profile_photo_view);
 
         if (profileImageUrl.equals("NullPhoto")) {
 
@@ -459,10 +463,10 @@ public class MainActivity extends AppCompatActivity {
                     .into(profileImageView);
         }
 
-        TextView nameTextView = (TextView) findViewById(R.id.name_text_view);
+        TextView nameTextView = findViewById(R.id.name_text_view);
         userName = userName.substring(0, 1).toUpperCase() + userName.substring(1);
         nameTextView.setText(userName);
-        TextView rollNoTextView = (TextView) findViewById(R.id.roll_no_text_view);
+        TextView rollNoTextView = findViewById(R.id.roll_no_text_view);
         rollNoTextView.setText(emailId);
     }
 

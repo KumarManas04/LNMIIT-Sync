@@ -1,10 +1,12 @@
 package com.infinitysolutions.lnmiitsync.Fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +49,7 @@ public class EventsFragment extends Fragment {
     private List<Event> mEvents;
     private long mStartTime;
     private long mEndTime;
+    private int screenWidth;
     private int mark;
     private String TAG = "EventsFragment";
 
@@ -62,17 +65,21 @@ public class EventsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_events_view, container, false);
-        mEventsRecyclerView = (RecyclerView) rootView.findViewById(R.id.events_recycler_view);
+        mEventsRecyclerView = rootView.findViewById(R.id.events_recycler_view);
         mEventsRecyclerView.setVisibility(View.VISIBLE);
-        mLoadingTextView = (TextView)rootView.findViewById(R.id.loading_view);
+        mLoadingTextView = rootView.findViewById(R.id.loading_view);
         mLoadingTextView.setVisibility(View.INVISIBLE);
-        mRecyclerEmptyImageView = (ImageView)rootView.findViewById(R.id.recycler_empty_view);
+        mRecyclerEmptyImageView = rootView.findViewById(R.id.recycler_empty_view);
         mRecyclerEmptyImageView.setVisibility(View.INVISIBLE);
 
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mContext, RecyclerView.VERTICAL, false);
         mEventsRecyclerView.setLayoutManager(mLayoutManager);
         mEvents = new ArrayList<Event>();
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = (displayMetrics.widthPixels)/2;
 
         loadEvents();
         return rootView;
@@ -124,8 +131,8 @@ public class EventsFragment extends Fragment {
                     }
                     if(mEvents.size() == 0){
                         mRecyclerEmptyImageView.setImageResource(R.drawable.empty_list);
-                        mRecyclerEmptyImageView.getLayoutParams().width = 600;
-                        mRecyclerEmptyImageView.getLayoutParams().height = 600;
+                        mRecyclerEmptyImageView.getLayoutParams().width = screenWidth;
+                        mRecyclerEmptyImageView.getLayoutParams().height = screenWidth;
                         mLoadingTextView.setText("No events");
                     }else {
                         mLoadingTextView.setVisibility(View.INVISIBLE);

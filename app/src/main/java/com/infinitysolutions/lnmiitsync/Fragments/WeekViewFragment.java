@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -36,17 +37,18 @@ public class WeekViewFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_week_view, container, false);
 
-        ViewPager viewPager = (ViewPager)rootView.findViewById(R.id.view_pager);
-        TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.tab_layout);
+        ViewPager viewPager = rootView.findViewById(R.id.view_pager);
+        TabLayout tabLayout = rootView.findViewById(R.id.tab_layout);
 
         WeekTabAdapter adapter = new WeekTabAdapter(getActivity().getSupportFragmentManager());
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         String formattedDate = sdf.format(calendar.getTime());
         Date date = new Date();
         try {
-            date = (Date)sdf.parse(formattedDate);
+            date = sdf.parse(formattedDate);
         } catch (ParseException e) {
             e.printStackTrace();
         }

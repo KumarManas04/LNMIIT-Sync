@@ -22,9 +22,9 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        final EditText editText = (EditText) findViewById(R.id.notify_before_time);
+        final EditText editText = findViewById(R.id.notify_before_time);
         final SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREF_NAME,MODE_PRIVATE);
-        int num = sharedPrefs.getInt(SHARED_PREF_NOTIFY_BEFORE,0);
+        int num = sharedPrefs.getInt(SHARED_PREF_NOTIFY_BEFORE,10);
         editText.setText(Integer.toString(num));
 
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -48,7 +48,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void backPress(View view){
-        EditText editText = (EditText) findViewById(R.id.notify_before_time);
+        EditText editText = findViewById(R.id.notify_before_time);
         try {
             int num = Integer.parseInt(editText.getText().toString());
             SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREF_NAME,MODE_PRIVATE);
@@ -64,7 +64,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        EditText editText = (EditText) findViewById(R.id.notify_before_time);
+        EditText editText = findViewById(R.id.notify_before_time);
         try {
             int num = Integer.parseInt(editText.getText().toString());
             SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREF_NAME,MODE_PRIVATE);
