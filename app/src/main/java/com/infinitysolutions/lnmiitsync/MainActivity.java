@@ -63,7 +63,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.BASE_URL;
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_BATCH;
@@ -87,12 +86,19 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Map<String, Event> notifyEventsMap;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setToolbar();
+
+        dialog = new ProgressDialog(this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Signing up...");
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
 
         mSwipeRefreshLayout = findViewById(R.id.swipe_refresh_layout);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.cyan, R.color.indigo);
@@ -165,6 +171,15 @@ public class MainActivity extends AppCompatActivity {
             }.getType();
             notifyEventsMap = new Gson().fromJson(notifyEventsJson, type);
         }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(dialog != null && dialog.isShowing()) {
+            dialog.cancel();
+        }
     }
 
     @Override
@@ -176,16 +191,27 @@ public class MainActivity extends AppCompatActivity {
             final SharedPreferences.Editor editor = sharedPrefs.edit();
             int loginType = sharedPrefs.getInt(SHARED_PREF_LOGIN_TYPE, 1);
 
-            StringBuilder userName = new StringBuilder(intent.getStringExtra("userName"));
+            StringBuilder userName;
+            if(intent.hasExtra("userName")) {
+                userName = new StringBuilder(intent.getStringExtra("userName"));
+            }else{
+                userName = new StringBuilder();
+            }
             String emailId = intent.getStringExtra("emailId");
             String gId = intent.getStringExtra("gId");
             String thumbnailUrl = intent.getStringExtra("thumbnailUrl");
 
             //Saving user data to sharedPrefs
-            String userNameArray[] = userName.toString().split("\\s+");
-            userName.setLength(0);
-            for (int i = 0; i < userNameArray.length; i++) {
-                userName.append(userNameArray[i].substring(0, 1).toUpperCase()).append(userNameArray[i].substring(1)).append(" ");
+            if(userName.toString().equals("")){
+                userName.append("Unknown");
+            }else{
+                String userNameArray[] = userName.toString().split("\\s+");
+                userName.setLength(0);
+                if(userNameArray.length == 1)
+                    Log.d(TAG,"Empty array");
+                for (String userNamePart : userNameArray) {
+                    userName.append(userNamePart.substring(0, 1).toUpperCase()).append(userNamePart.substring(1)).append(" ");
+                }
             }
             userName.trimToSize();
 
@@ -197,19 +223,17 @@ public class MainActivity extends AppCompatActivity {
 
             if (loginType == STUDENT_LOGIN) {
                 String clubs[] = intent.getStringArrayExtra("clubs");
-                String batch = intent.getStringExtra("batch");
-                editor.putString(SHARED_PREF_BATCH, batch);
                 Set<String> clubsSet = new HashSet<String>(Arrays.asList(clubs));
                 editor.putStringSet(SHARED_PREF_CLUBS, clubsSet);
 
                 //Only register user if not already registered
                 if (!intent.hasExtra("isRegistered")) {
-                    sendDataToServer(userName.toString(), gId, thumbnailUrl, clubs, batch, emailId);
+                    sendDataToServer(userName.toString(), gId, thumbnailUrl, clubs, emailId);
                 }
             } else {
                 //Only register user if not already registered
                 if (!intent.hasExtra("isRegistered")) {
-                    sendDataToServer(userName.toString(), gId, thumbnailUrl, null, "guest", emailId);
+                    sendDataToServer(userName.toString(), gId, thumbnailUrl, null, emailId);
                 }
             }
 
@@ -255,14 +279,18 @@ public class MainActivity extends AppCompatActivity {
                 editor.apply();
                 mSwipeRefreshLayout.setRefreshing(false);
                 BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+                CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar);
                 switch (bottomNavigationView.getSelectedItemId()) {
                     case R.id.bnav_today_view:
+                        collapsingToolbarLayout.setTitle("Today");
                         loadTodayFragment();
                         break;
                     case R.id.bnav_week_view:
+                        collapsingToolbarLayout.setTitle("This week");
                         loadWeekFragment();
                         break;
                     case R.id.bnav_all_view:
+                        collapsingToolbarLayout.setTitle("All");
                         loadAllFragment();
                         break;
                     default:
@@ -344,13 +372,7 @@ public class MainActivity extends AppCompatActivity {
         collapsingToolbarLayout.setExpandedTitleColor(Color.parseColor("#ffffff"));
     }
 
-    private void sendDataToServer(String userName, String gId, String thumbnailUrl, String clubs[], String batch, String emailId) {
-
-        final ProgressDialog dialog = new ProgressDialog(this); // this = YourActivity
-        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dialog.setMessage("Signing up...");
-        dialog.setIndeterminate(true);
-        dialog.setCanceledOnTouchOutside(false);
+    private void sendDataToServer(String userName, String gId, String thumbnailUrl, String clubs[], String emailId) {
         dialog.show();
         //The logging interceptor will be added to the http client
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -364,16 +386,21 @@ public class MainActivity extends AppCompatActivity {
 
         RetroFitInterface service = retrofit.create(RetroFitInterface.class);
 
-        service.post(userName, gId, thumbnailUrl, clubs, batch, emailId)
+        service.post(userName, gId, thumbnailUrl, clubs, emailId)
                 .enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        dialog.cancel();
+                        if(dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
                     }
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+                        if(dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                        Toast.makeText(MainActivity.this, "Couldn't contact server", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -392,6 +419,11 @@ public class MainActivity extends AppCompatActivity {
         // the mail subject
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Help or Feedback");
         startActivity(Intent.createChooser(emailIntent, "Help or Feedback"));
+    }
+
+    public void developers(View view){
+        Intent intent = new Intent(this, Developers.class);
+        startActivity(intent);
     }
 
     public void logout(View view) {
@@ -454,7 +486,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            //Here we detect that image loading has occured so clipToOutline to make imageView circular
+                            //Here we detect that image loading has occurred so clipToOutline to make imageView circular
                             profileImageView.setClipToOutline(true);
                             return false;
                         }
@@ -463,10 +495,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView nameTextView = findViewById(R.id.name_text_view);
-        userName = userName.substring(0, 1).toUpperCase() + userName.substring(1);
         nameTextView.setText(userName);
         TextView rollNoTextView = findViewById(R.id.roll_no_text_view);
         rollNoTextView.setText(emailId);
+    }
+
+    public void enableSwipeToRefresh(boolean enable){
+            mSwipeRefreshLayout.setEnabled(enable);
     }
 
     public boolean isBeingNotified(String id) {
@@ -477,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
         notifyEventsMap.remove(id);
         if(notifyEventsMap.size() == 0){
             Intent intent = new Intent(this, EventNotificationPublisher.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             alarmManager.cancel(pendingIntent);
@@ -523,7 +558,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("endTime", alarmEvent.getEndTime());
         intent.putExtra("venue", alarmEvent.getVenue());
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 123, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         SharedPreferences sharedPrefs = getSharedPreferences(SHARED_PREF_NAME,MODE_PRIVATE);
         int notifyBefore = sharedPrefs.getInt(SHARED_PREF_NOTIFY_BEFORE,0);

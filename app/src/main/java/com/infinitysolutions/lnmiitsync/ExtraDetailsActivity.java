@@ -1,5 +1,6 @@
 package com.infinitysolutions.lnmiitsync;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,13 +12,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import com.infinitysolutions.lnmiitsync.Adapters.ClubsRecyclerViewAdapter;
 import com.infinitysolutions.lnmiitsync.RetrofitResponses.ClubResponse;
@@ -34,28 +33,29 @@ public class ExtraDetailsActivity extends AppCompatActivity {
     private RecyclerView mClubsRecyclerView;
     private ClubsRecyclerViewAdapter mClubsRecyclerViewAdapter;
     private List<String> mRecyclerItemsList;
-    private Spinner mSpinner;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_extra_details);
 
-        mSpinner = (Spinner)findViewById(R.id.spinner);
-        mClubsRecyclerView = (RecyclerView) findViewById(R.id.clubs_recycler_view);
+        dialog = new ProgressDialog(this);
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Gathering clubs data...");
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+
+        mClubsRecyclerView = findViewById(R.id.clubs_recycler_view);
         loadAndShowClubs();
-        Log.d(TAG, "Next line called");
+    }
 
-        List<String> spinnerItemsList = new ArrayList<String>();
-        spinnerItemsList.add("A1");
-        spinnerItemsList.add("A2");
-        spinnerItemsList.add("B1");
-        spinnerItemsList.add("B2");
-
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this,R.layout.spinner_item,spinnerItemsList);
-
-        mSpinner.setAdapter(spinnerAdapter);
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(dialog != null && dialog.isShowing()) {
+            dialog.dismiss();
+        }
     }
 
     public void submit(View view){
@@ -74,13 +74,13 @@ public class ExtraDetailsActivity extends AppCompatActivity {
 
         Intent intent = new Intent();
         intent.putExtra("clubs",selectedClubsArray);
-        intent.putExtra("batch",mSpinner.getSelectedItem().toString());
         setResult(102,intent);
         finish();
     }
 
     private void loadAndShowClubs(){
         mRecyclerItemsList = new ArrayList<String>();
+        dialog.show();
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
@@ -95,6 +95,9 @@ public class ExtraDetailsActivity extends AppCompatActivity {
         service.getClubsList().enqueue(new Callback<List<ClubResponse>>() {
             @Override
             public void onResponse(Call<List<ClubResponse>> call, Response<List<ClubResponse>> response) {
+                if(dialog != null && dialog.isShowing()) {
+                    dialog.dismiss();
+                }
                 List<ClubResponse> clubsResponseList = response.body();
                 for(ClubResponse clubResponse:clubsResponseList){
                     mRecyclerItemsList.add(clubResponse.getName());
@@ -103,14 +106,29 @@ public class ExtraDetailsActivity extends AppCompatActivity {
                 mClubsRecyclerView.setAdapter(mClubsRecyclerViewAdapter);
                 GridLayoutManager manager = new GridLayoutManager(ExtraDetailsActivity.this,2,RecyclerView.VERTICAL,false);
                 mClubsRecyclerView.setLayoutManager(manager);
-                Log.d(TAG, "Clubs list set");
             }
 
             @Override
             public void onFailure(Call<List<ClubResponse>> call, Throwable t) {
-
+                if(dialog != null && dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+                new AlertDialog.Builder(ExtraDetailsActivity.this)
+                        .setTitle("Network error")
+                        .setMessage("Couldn't gather clubs data. Please check your internet connection and press retry.")
+                        .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                loadAndShowClubs();
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        }).show();
             }
         });
-        Log.d(TAG, "loadClubs method ended");
     }
 }

@@ -19,11 +19,11 @@ public class EventDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
 
-        TextView titleView = (TextView)findViewById(R.id.event_details_title);
-        TextView descriptionView = (TextView)findViewById(R.id.event_details_description);
-        TextView timeView = (TextView)findViewById(R.id.event_details_time);
-        TextView venueView = (TextView)findViewById(R.id.event_details_venue);
-        TextView dateTextView = (TextView)findViewById(R.id.event_details_date);
+        TextView titleView = findViewById(R.id.event_details_title);
+        TextView descriptionView = findViewById(R.id.event_details_description);
+        TextView timeView = findViewById(R.id.event_details_time);
+        TextView venueView = findViewById(R.id.event_details_venue);
+        TextView dateTextView = findViewById(R.id.event_details_date);
 
         Intent intent = getIntent();
         String title = intent.getStringExtra("title");
@@ -58,7 +58,12 @@ public class EventDetailsActivity extends AppCompatActivity {
         }else{
             timeView.setText(startTimeString + " - " + endTimeString);
         }
-        venueView.setText(venue);
+
+        if(!venue.equals("")) {
+            venueView.setText(venue);
+        }else{
+            venueView.setText("(No venue specified)");
+        }
 
         if(description != null) {
             if (description.equals("")) {

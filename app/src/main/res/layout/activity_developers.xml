@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background_gradient"
+    android:fitsSystemWindows="true">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/main_background_gradient"
+        tools:context=".Developers">
+
+        <LinearLayout
+            android:paddingBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingStart="18dp">
+
+            <TextView
+                android:layout_marginTop="14dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Android Developer"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+
+
+            <RelativeLayout
+                android:layout_marginBottom="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/km"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/round_image_view_background"
+                    android:src="@drawable/kumar_manas" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/km"
+                    android:fontFamily="sans-serif-condensed"
+                    android:layout_marginStart="16dp"
+                    android:text="Kumar Manas"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <ImageView
+                    android:id="@+id/km_linkedin"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_toEndOf="@id/km"
+                    android:src="@drawable/linkedin"
+                    android:onClick="openLinkedIn"/>
+
+            </RelativeLayout>
+
+            <View
+                android:background="#eeeeee"
+                android:layout_marginEnd="18dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Backend Developers"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/st"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/round_image_view_background"
+                    android:src="@drawable/sourabh_tripathi" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/st"
+                    android:fontFamily="sans-serif-condensed"
+                    android:layout_marginStart="16dp"
+                    android:text="Sourabh Tripathi"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <ImageView
+                    android:id="@+id/st_linkedin"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@id/st"
+                    android:src="@drawable/linkedin"
+                    android:onClick="openLinkedIn"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/sn"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/round_image_view_background"
+                    android:src="@drawable/subhajit_nandi" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/sn"
+                    android:fontFamily="sans-serif-condensed"
+                    android:layout_marginStart="16dp"
+                    android:text="Subhajit Nandi"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <ImageView
+                    android:id="@+id/sn_linkedin"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@id/sn"
+                    android:src="@drawable/linkedin"
+                    android:onClick="openLinkedIn"/>
+
+            </RelativeLayout>
+
+            <View
+                android:background="#eeeeee"
+                android:layout_marginEnd="18dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="Frontend Developer"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+
+            <RelativeLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/aj"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/round_image_view_background"
+                    android:src="@drawable/akshat_jain" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/aj"
+                    android:fontFamily="sans-serif-condensed"
+                    android:layout_marginStart="16dp"
+                    android:text="Akshat Jain"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <ImageView
+                    android:id="@+id/aj_linkedin"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@id/aj"
+                    android:src="@drawable/linkedin"
+                    android:onClick="openLinkedIn"/>
+
+            </RelativeLayout>
+
+            <View
+                android:background="#eeeeee"
+                android:layout_marginEnd="18dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="sans-serif-condensed"
+                android:text="React.JS Developer"
+                android:textColor="#fff"
+                android:textSize="30sp" />
+
+            <RelativeLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/an"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/round_image_view_background"
+                    android:src="@drawable/anubhav_natani" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/an"
+                    android:fontFamily="sans-serif-condensed"
+                    android:layout_marginStart="16dp"
+                    android:text="Anubhav Natani"
+                    android:textColor="#fff"
+                    android:textSize="22sp" />
+
+                <ImageView
+                    android:id="@+id/an_linkedin"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_toEndOf="@id/an"
+                    android:src="@drawable/linkedin"
+                    android:onClick="openLinkedIn"/>
+
+            </RelativeLayout>
+
+            <View
+                android:background="#eeeeee"
+                android:layout_marginEnd="18dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+            <TextView
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:ellipsize="end"
+                android:layout_marginTop="5dp"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="18sp"
+                android:textColor="#ffffff"
+                android:text="by GYMKHANA TECH TEAM"
+                android:layout_gravity="end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

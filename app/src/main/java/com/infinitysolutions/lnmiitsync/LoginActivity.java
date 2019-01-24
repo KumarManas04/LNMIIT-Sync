@@ -14,7 +14,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -140,6 +139,7 @@ public class LoginActivity extends AppCompatActivity {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             mGoogleSignInClient.signOut();
+            Toast.makeText(this, "Network error", Toast.LENGTH_SHORT).show();
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
         }
     }
@@ -203,7 +203,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
 
                             intent.putExtra("clubs", clubsArray);
-                            intent.putExtra("batch", response.body().getBatch());
                         }
 
                         intent.putExtra("gId", response.body().getGoogleId());

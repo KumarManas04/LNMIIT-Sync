@@ -3,7 +3,6 @@ package com.infinitysolutions.lnmiitsync.RetrofitResponses;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Result {
@@ -27,10 +26,6 @@ public class Result {
     @SerializedName("email")
     @Expose
     private String email;
-
-    @SerializedName("batch")
-    @Expose
-    private String batch;
 
     public List<String> getClubs() {
         return clubs;
@@ -70,14 +65,6 @@ public class Result {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getBatch() {
-        return batch;
-    }
-
-    public void setBatch(String batch) {
-        this.batch = batch;
     }
 
 }

@@ -2,6 +2,7 @@ package com.infinitysolutions.lnmiitsync.Fragments;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,13 +11,13 @@ import android.view.ViewGroup;
 
 import com.google.android.material.tabs.TabLayout;
 import com.infinitysolutions.lnmiitsync.Adapters.WeekTabAdapter;
+import com.infinitysolutions.lnmiitsync.MainActivity;
 import com.infinitysolutions.lnmiitsync.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,7 +25,6 @@ import androidx.viewpager.widget.ViewPager;
 
 
 public class WeekViewFragment extends Fragment {
-    private Context mContext;
     private String TAG = "WeekViewFragment";
 
     public WeekViewFragment() {
@@ -43,6 +43,12 @@ public class WeekViewFragment extends Fragment {
         TabLayout tabLayout = rootView.findViewById(R.id.tab_layout);
 
         WeekTabAdapter adapter = new WeekTabAdapter(getActivity().getSupportFragmentManager());
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        } else {
+            tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        }
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
@@ -99,13 +105,33 @@ public class WeekViewFragment extends Fragment {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(tabSelect).select();
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if(state == ViewPager.SCROLL_STATE_IDLE){
+                    ((MainActivity)getActivity()).enableSwipeToRefresh(true);
+                }else{
+                    ((MainActivity)getActivity()).enableSwipeToRefresh(false);
+                }
+            }
+        });
         return rootView;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mContext = context;
     }
 
 }

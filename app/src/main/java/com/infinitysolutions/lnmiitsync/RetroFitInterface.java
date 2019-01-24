@@ -23,7 +23,6 @@ public interface RetroFitInterface {
             @Field("googleId") String googleId,
             @Field("thumbnail") String thumbnail,
             @Field("clubs") String clubs[],
-            @Field("batch") String batch,
             @Field("email") String email
     );
 

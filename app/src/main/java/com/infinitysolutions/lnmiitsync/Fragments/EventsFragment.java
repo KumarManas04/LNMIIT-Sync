@@ -2,7 +2,9 @@ package com.infinitysolutions.lnmiitsync.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,27 +17,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonSyntaxException;
 import com.infinitysolutions.lnmiitsync.Event;
 import com.infinitysolutions.lnmiitsync.RetrofitResponses.EventResponse;
 import com.infinitysolutions.lnmiitsync.Adapters.EventsRecyclerViewAdapter;
 import com.infinitysolutions.lnmiitsync.R;
 
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_EVENTS_DATA;
 import static com.infinitysolutions.lnmiitsync.Contract.ValuesContract.SHARED_PREF_NAME;
@@ -79,7 +75,12 @@ public class EventsFragment extends Fragment {
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        screenWidth = (displayMetrics.widthPixels)/2;
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            screenWidth = (int)((float)displayMetrics.heightPixels * 0.3);
+        } else {
+            screenWidth = (displayMetrics.widthPixels)/2;
+        }
 
         loadEvents();
         return rootView;
@@ -110,8 +111,27 @@ public class EventsFragment extends Fragment {
         SharedPreferences sharedPrefs = mContext.getSharedPreferences(SHARED_PREF_NAME,Context.MODE_PRIVATE);
 
         String json = sharedPrefs.getString(SHARED_PREF_EVENTS_DATA,"{}");
-        List<EventResponse> eventResponses = Arrays.asList(new Gson().fromJson(json, EventResponse[].class));
-        loadIntoRecyclerView(eventResponses);
+        try {
+            List<EventResponse> eventResponses = Arrays.asList(new Gson().fromJson(json, EventResponse[].class));
+            loadIntoRecyclerView(eventResponses);
+        }catch (JsonSyntaxException e){
+            new AlertDialog.Builder(mContext)
+                    .setTitle("Oops!")
+                    .setMessage("Problem in loading info. Retry loading or please restart the app.")
+                    .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loadEvents();
+                        }
+                    })
+                    .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            getActivity().finish();
+                            System.exit(0);
+                        }
+                    }).show();
+        }
     }
 
     private void loadIntoRecyclerView(final List<EventResponse> list) {
@@ -140,7 +160,8 @@ public class EventsFragment extends Fragment {
                         mRecyclerEmptyImageView.setVisibility(View.INVISIBLE);
                         mEventsRecyclerView.setVisibility(View.VISIBLE);
                         mEventsRecyclerView.setAdapter(adapter);
-                        mEventsRecyclerView.scrollToPosition(mark);
+                        if(mark > 0)
+                            mEventsRecyclerView.scrollToPosition(mark - 1);
                     }
                 }
                 return true;
@@ -206,7 +227,9 @@ public class EventsFragment extends Fragment {
                         i++;
                     }
                 }
-                Log.d(TAG,"i = " + i + ", Mark = " + mark);
+                if (mark == 0){
+                    mark = i;
+                }
                 handler.sendEmptyMessage(0);
             }
         };
